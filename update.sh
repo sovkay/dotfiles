@@ -8,19 +8,14 @@ echo "Updating system..."
 # CONFIGURATION - Edit these values as needed
 # =============================================================================
 DEFAULT_NODE_VERSION="22"
+DARWIN_CONFIG_NAME="cozmos"  # Must match darwinConfigurations in flake.nix
 # =============================================================================
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Update nix-darwin
-if [ -d "$HOME/.config/nix" ] && command -v darwin-rebuild &> /dev/null; then
-    echo -e "${BLUE}Updating Nix packages...${NC}"
-    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
-fi
-
-# Update dotfiles
+# Update dotfiles first
 echo -e "${BLUE}Updating dotfiles...${NC}"
 cd ~/dotfiles
 git pull 2>/dev/null || true
@@ -34,6 +29,15 @@ for package in "${PACKAGES[@]}"; do
     fi
 done
 
+# Update nix-darwin
+if command -v darwin-rebuild &> /dev/null; then
+    echo -e "${BLUE}Updating Nix packages...${NC}"
+    # Update flake inputs
+    nix flake update ~/.config/nix 2>/dev/null || true
+    # Apply configuration
+    sudo darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
+fi
+
 # Update Node.js via NVM
 echo -e "${BLUE}Checking Node.js version...${NC}"
 export NVM_DIR="$HOME/.nvm"
@@ -46,7 +50,6 @@ elif [ -s "/run/current-system/sw/share/nvm/nvm.sh" ]; then
 fi
 
 if command -v nvm &> /dev/null; then
-    # Install latest of the default major version
     nvm install "$DEFAULT_NODE_VERSION"
     nvm alias default "$DEFAULT_NODE_VERSION"
     echo -e "${GREEN}Node.js v${DEFAULT_NODE_VERSION} is set as default${NC}"

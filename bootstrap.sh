@@ -8,6 +8,7 @@ echo "Starting bootstrap..."
 # CONFIGURATION - Edit these values as needed
 # =============================================================================
 DEFAULT_NODE_VERSION="22"
+DARWIN_CONFIG_NAME="cozmos"  # Must match darwinConfigurations in flake.nix
 # =============================================================================
 
 # Colors for output
@@ -18,27 +19,30 @@ NC='\033[0m' # No Color
 # Check if Nix is installed
 if ! command -v nix &> /dev/null; then
     echo -e "${BLUE}Installing Nix (multi-user daemon mode)...${NC}"
-    bash <(curl -L https://nixos.org/nix/install) --daemon
+    curl -L https://nixos.org/nix/install | sh
 
-    echo -e "${GREEN}Nix installed. Please restart your terminal and run bootstrap again.${NC}"
+    echo ""
+    echo -e "${GREEN}Nix installed!${NC}"
+    echo -e "${BLUE}Please restart your terminal and run this script again.${NC}"
     exit 0
-else
-    echo -e "${GREEN}Nix already installed${NC}"
 fi
 
-# Ensure nix is sourced in current shell
+echo -e "${GREEN}Nix already installed${NC}"
+
+# Ensure nix-daemon is sourced in current shell
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Enable flakes in user config if not already set
-mkdir -p ~/.config/nix
-if ! grep -q "experimental-features" ~/.config/nix/nix.conf 2>/dev/null; then
-    echo -e "${BLUE}Enabling flakes in nix config...${NC}"
-    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+# Enable flakes globally in /etc/nix/nix.conf (requires sudo)
+if ! grep -q "experimental-features.*flakes" /etc/nix/nix.conf 2>/dev/null; then
+    echo -e "${BLUE}Enabling flakes in /etc/nix/nix.conf...${NC}"
+    echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf
+    # Restart nix-daemon to pick up the change
+    sudo launchctl kickstart -k system/org.nixos.nix-daemon
 fi
 
-# Stow nix config (the flake)
+# Stow nix config (the flake) to ~/.config/nix
 echo -e "${BLUE}Stowing nix flake config...${NC}"
 cd ~/dotfiles
 mkdir -p ~/.config
@@ -47,19 +51,18 @@ stow -R nix 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, co
 # Install/update nix-darwin
 if ! command -v darwin-rebuild &> /dev/null; then
     echo -e "${BLUE}Installing nix-darwin...${NC}"
-    # First install requires sudo per nix-darwin docs
-    sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#cozmos
+    # Per nix-darwin docs: use sudo nix run for initial install
+    sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 else
     echo -e "${GREEN}nix-darwin already installed${NC}"
     echo -e "${BLUE}Applying nix-darwin configuration...${NC}"
-    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
+    sudo darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 fi
 
 # Stow remaining dotfiles
 echo -e "${BLUE}Stowing dotfiles...${NC}"
 cd ~/dotfiles
 
-# List of packages to stow
 PACKAGES=("fish" "nvim" "starship" "ghostty" "zed" "gh" "fastfetch" "omf" "profile")
 
 for package in "${PACKAGES[@]}"; do
