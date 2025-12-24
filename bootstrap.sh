@@ -17,39 +17,42 @@ NC='\033[0m' # No Color
 
 # Check if Nix is installed
 if ! command -v nix &> /dev/null; then
-    echo -e "${BLUE}Installing Nix...${NC}"
-    sh <(curl -L https://nixos.org/nix/install)
+    echo -e "${BLUE}Installing Nix (multi-user daemon mode)...${NC}"
+    bash <(curl -L https://nixos.org/nix/install) --daemon
 
-    # Source nix
-    if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-    fi
+    echo -e "${GREEN}Nix installed. Please restart your terminal and run bootstrap again.${NC}"
+    exit 0
 else
     echo -e "${GREEN}Nix already installed${NC}"
 fi
 
-# Fix SSL certs for macOS (needed for nix downloads)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    export NIX_SSL_CERT_FILE=/etc/ssl/cert.pem
+# Ensure nix is sourced in current shell
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+    . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Stow nix config first (needed before darwin-rebuild)
-echo -e "${BLUE}Stowing nix config...${NC}"
+# Enable flakes in user config if not already set
+mkdir -p ~/.config/nix
+if ! grep -q "experimental-features" ~/.config/nix/nix.conf 2>/dev/null; then
+    echo -e "${BLUE}Enabling flakes in nix config...${NC}"
+    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+fi
+
+# Stow nix config (the flake)
+echo -e "${BLUE}Stowing nix flake config...${NC}"
 cd ~/dotfiles
 mkdir -p ~/.config
 stow -R nix 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, continuing...)${NC}"
 
-# Check if nix-darwin is installed
+# Install/update nix-darwin
 if ! command -v darwin-rebuild &> /dev/null; then
     echo -e "${BLUE}Installing nix-darwin...${NC}"
-    # Build first as user, then switch as root
-    nix --extra-experimental-features "nix-command flakes" build ~/.config/nix#darwinConfigurations.cozmos.system
-    sudo ./result/sw/bin/darwin-rebuild switch --flake ~/.config/nix#cozmos
+    # First install requires nix run with full path to darwin-rebuild
+    nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#cozmos
 else
     echo -e "${GREEN}nix-darwin already installed${NC}"
-    # Apply nix-darwin configuration
     echo -e "${BLUE}Applying nix-darwin configuration...${NC}"
-    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
+    darwin-rebuild switch --flake ~/.config/nix#cozmos
 fi
 
 # Stow remaining dotfiles
@@ -95,7 +98,7 @@ if [ -x "$FISH_PATH" ] && [ "$SHELL" != "$FISH_PATH" ]; then
     if ! grep -q "$FISH_PATH" /etc/shells; then
         echo "$FISH_PATH" | sudo tee -a /etc/shells
     fi
-    chfs -s "$FISH_PATH"
+    chsh -s "$FISH_PATH"
     echo -e "${GREEN}Fish set as default shell${NC}"
 else
     echo -e "${GREEN}Fish already default shell${NC}"
