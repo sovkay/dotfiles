@@ -17,7 +17,7 @@ NC='\033[0m'
 # Update nix-darwin
 if [ -d "$HOME/.config/nix" ]; then
     echo -e "${BLUE}Updating Nix packages...${NC}"
-    darwin-rebuild switch --flake ~/.config/nix#cozmos
+    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
 fi
 
 # Update dotfiles

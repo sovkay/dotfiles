@@ -42,12 +42,12 @@ stow -R nix 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, co
 # Check if nix-darwin is installed
 if ! command -v darwin-rebuild &> /dev/null; then
     echo -e "${BLUE}Installing nix-darwin...${NC}"
-    nix --extra-experimental-features "nix-command flakes" run nix-darwin -- switch --flake ~/.config/nix#cozmos
+    sudo nix --extra-experimental-features "nix-command flakes" run nix-darwin -- switch --flake ~/.config/nix#cozmos
 else
     echo -e "${GREEN}nix-darwin already installed${NC}"
     # Apply nix-darwin configuration
     echo -e "${BLUE}Applying nix-darwin configuration...${NC}"
-    darwin-rebuild switch --flake ~/.config/nix#cozmos
+    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
 fi
 
 # Stow remaining dotfiles
