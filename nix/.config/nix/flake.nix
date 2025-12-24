@@ -16,14 +16,14 @@
     home-manager
   }:
   let
-    configuration = { pkgs, config, users, ... }: {
+    configuration = { pkgs, config, users, inputs, ... }: {
       nixpkgs.config.allowUnfree = true;
       users.users.sav.home = /Users/sav;
 
 
       # System packages (GUI apps and tools that need system-level install)
       environment.systemPackages = [
-        pkgs.ghostty-bin
+        pkgs.kitty
         pkgs.mkalias
         pkgs.stow
         pkgs.vscode

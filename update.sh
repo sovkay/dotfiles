@@ -31,9 +31,8 @@ done
 
 # Update nix-darwin
 if command -v darwin-rebuild &> /dev/null; then
-    echo -e "${BLUE}Updating Nix packages...${NC}"
-    # Update flake inputs
-    nix flake update ~/.config/nix 2>/dev/null || true
+    echo -e "${BLUE}Updating Nix packages for ${DARWIN_CONFIG_NAME}...${NC}"
+
     # Apply configuration
     sudo -H darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 fi
