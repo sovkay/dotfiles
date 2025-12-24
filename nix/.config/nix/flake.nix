@@ -21,7 +21,7 @@
 
       # System packages (GUI apps and tools that need system-level install)
       environment.systemPackages = [
-        pkgs.ghostty-bin
+        # pkgs.ghostty-bin  # TODO: install ghostty manually, nix package has permission issues
         pkgs.mkalias
         pkgs.stow
         pkgs.vscode
