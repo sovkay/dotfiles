@@ -149,11 +149,8 @@
         package = pkgs.vscode;
       };
 
-      # Enable programs (configs come from dotfiles via stow)
-      programs.fish.enable = true;
-      programs.git.enable = true;
-      programs.neovim.enable = true;
-      programs.starship.enable = true;
+      # Programs: only enable those that don't conflict with stowed dotfiles
+      # fish, git, neovim, starship configs are managed via stow - don't enable here
       programs.fzf.enable = true;
       programs.zoxide.enable = true;
       programs.direnv.enable = true;

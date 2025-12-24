@@ -51,6 +51,12 @@ alias grb="git rebase"
 alias gcl="git clone"
 alias gcp="git cherry-pick"
 
+# Dotfiles management
+alias dots="cd ~/dotfiles"
+alias dotsup="~/dotfiles/update.sh"
+alias stowit="~/dotfiles/stow.sh"
+alias nixup="darwin-rebuild switch --flake ~/.config/nix#cozmos"
+
 # Set up bun
 set -x BUN_INSTALL "$HOME/.bun"
 set -x PATH $BUN_INSTALL/bin $PATH
