@@ -28,6 +28,11 @@ else
     echo -e "${GREEN}Nix already installed${NC}"
 fi
 
+# Fix SSL certs for macOS (needed for nix downloads)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export NIX_SSL_CERT_FILE=/etc/ssl/cert.pem
+fi
+
 # Stow nix config first (needed before darwin-rebuild)
 echo -e "${BLUE}Stowing nix config...${NC}"
 cd ~/dotfiles
