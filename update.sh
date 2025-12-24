@@ -38,21 +38,15 @@ if command -v darwin-rebuild &> /dev/null; then
     sudo -H darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 fi
 
-# Update Node.js via NVM
+# Update Node.js via fnm
 echo -e "${BLUE}Checking Node.js version...${NC}"
-export NVM_DIR="$HOME/.nvm"
-
-# Source nvm
-if [ -s "$HOME/.nix-profile/share/nvm/nvm.sh" ]; then
-    . "$HOME/.nix-profile/share/nvm/nvm.sh"
-elif [ -s "/run/current-system/sw/share/nvm/nvm.sh" ]; then
-    . "/run/current-system/sw/share/nvm/nvm.sh"
-fi
-
-if command -v nvm &> /dev/null; then
+if command -v fnm &> /dev/null; then
+    eval "$(fnm env)"
     fnm install "$DEFAULT_NODE_VERSION"
-    fnm use "$DEFAULT_NODE_VERSION"
+    fnm default "$DEFAULT_NODE_VERSION"
     echo -e "${GREEN}Node.js v${DEFAULT_NODE_VERSION} is set as default${NC}"
+else
+    echo -e "${BLUE}fnm not found, skipping Node.js update...${NC}"
 fi
 
 echo -e "${GREEN}Update complete!${NC}"

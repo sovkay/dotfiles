@@ -68,13 +68,14 @@ for package in "${PACKAGES[@]}"; do
     fi
 done
 
-# Setup fem and install default Node version
+# Setup fnm and install default Node version
+if command -v fnm &> /dev/null; then
+    echo -e "${BLUE}Setting up fnm environment...${NC}"
+    eval "$(fnm env)"
 
-# Install and set default Node version
-if command -v fem &> /dev/null; then
     echo -e "${BLUE}Installing Node.js v${DEFAULT_NODE_VERSION}...${NC}"
     fnm install "$DEFAULT_NODE_VERSION"
-    fnm use
+    fnm default "$DEFAULT_NODE_VERSION"
     echo -e "${GREEN}Node.js v${DEFAULT_NODE_VERSION} installed and set as default${NC}"
 else
     echo -e "${BLUE}fnm not found in path, skipping Node setup...${NC}"

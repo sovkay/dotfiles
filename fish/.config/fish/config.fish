@@ -1,25 +1,9 @@
 set -x PATH /usr/local/bin /opt/homebrew/bin $PATH
 
 if status is-interactive
-    # NVM setup
-    set -gx NVM_DIR "$HOME/.nvm"
-
-    # Find nvm.sh from nix
-    set -l nvm_path ""
-    if test -s "$HOME/.nix-profile/share/nvm/nvm.sh"
-        set nvm_path "$HOME/.nix-profile/share/nvm/nvm.sh"
-    else if test -s "/run/current-system/sw/share/nvm/nvm.sh"
-        set nvm_path "/run/current-system/sw/share/nvm/nvm.sh"
-    end
-
-    # Create nvm function for Fish (uses bass)
-    if test -n "$nvm_path"
-        function nvm
-            bass source $nvm_path --no-use ';' nvm $argv
-        end
-
-        # Load default node version on shell start
-        nvm use default --silent 2>/dev/null
+    # fnm (Fast Node Manager) setup
+    if command -q fnm
+        fnm env --use-on-cd --shell fish | source
     end
 
     fastfetch -c $HOME/.config/fastfetch/config.jsonc
