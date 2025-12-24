@@ -92,6 +92,7 @@
         # CLI Tools
         ripgrep
         fd
+        gnupg
         bat
         eza
         fzf
