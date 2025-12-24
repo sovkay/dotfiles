@@ -16,12 +16,14 @@
     home-manager
   }:
   let
-    configuration = { pkgs, config, ... }: {
+    configuration = { pkgs, config, users, ... }: {
       nixpkgs.config.allowUnfree = true;
+      users.users.sav.home = /Users/sav;
+
 
       # System packages (GUI apps and tools that need system-level install)
       environment.systemPackages = [
-        # pkgs.ghostty-bin  # TODO: install ghostty manually, nix package has permission issues
+        pkgs.ghostty-bin
         pkgs.mkalias
         pkgs.stow
         pkgs.vscode
@@ -80,7 +82,7 @@
 
     homeconfig = { pkgs, ... }: {
       home.username = "sav";
-      home.homeDirectory = "/Users/sav";
+      home.homeDirectory = /Users/sav;
       home.stateVersion = "24.11";
 
       # All packages managed by home-manager
@@ -113,14 +115,14 @@
 
         # Development Languages & Tools
         rustup
-        nvm               # Node version manager
+        fnm               # Node version manager
         bun               # Fast JS runtime & package manager
         go
 
         # Databases
         redis
         postgresql
-        beekeeper-studio
+
 
         # Cloud & DevOps
         kubectl

@@ -35,7 +35,7 @@ if command -v darwin-rebuild &> /dev/null; then
     # Update flake inputs
     nix flake update ~/.config/nix 2>/dev/null || true
     # Apply configuration
-    sudo darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
+    sudo -H darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 fi
 
 # Update Node.js via NVM
@@ -50,8 +50,8 @@ elif [ -s "/run/current-system/sw/share/nvm/nvm.sh" ]; then
 fi
 
 if command -v nvm &> /dev/null; then
-    nvm install "$DEFAULT_NODE_VERSION"
-    nvm alias default "$DEFAULT_NODE_VERSION"
+    fnm install "$DEFAULT_NODE_VERSION"
+    fnm use "$DEFAULT_NODE_VERSION"
     echo -e "${GREEN}Node.js v${DEFAULT_NODE_VERSION} is set as default${NC}"
 fi
 

@@ -34,29 +34,25 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
     . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-# Enable flakes globally in /etc/nix/nix.conf (requires sudo)
-if ! grep -q "experimental-features.*flakes" /etc/nix/nix.conf 2>/dev/null; then
-    echo -e "${BLUE}Enabling flakes in /etc/nix/nix.conf...${NC}"
-    echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf
-    # Restart nix-daemon to pick up the change
-    sudo launchctl kickstart -k system/org.nixos.nix-daemon
-fi
-
 # Stow nix config (the flake) to ~/.config/nix
 echo -e "${BLUE}Stowing nix flake config...${NC}"
 cd ~/dotfiles
 mkdir -p ~/.config
-stow -R nix 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, continuing...)${NC}"
+nix-shell -p stow --run "stow -R nix" 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, continuing...)${NC}"
 
 # Install/update nix-darwin
 if ! command -v darwin-rebuild &> /dev/null; then
+    echo -e "${BLUE}Moving bash, zsh and ca files as backups...${NC}"
+    sudo mv /etc/bashrc /etc/bashrc.before-nix-darwin
+    sudo mv /etc/zshrc /etc/zshrc.before-nix-darwin
+    sudo mv /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt.before-nix-darwin
+
     echo -e "${BLUE}Installing nix-darwin...${NC}"
-    # Per nix-darwin docs: use sudo nix run for initial install
-    sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
+    sudo -H nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 else
     echo -e "${GREEN}nix-darwin already installed${NC}"
     echo -e "${BLUE}Applying nix-darwin configuration...${NC}"
-    sudo darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
+    sudo -H darwin-rebuild switch --flake ~/.config/nix#${DARWIN_CONFIG_NAME}
 fi
 
 # Stow remaining dotfiles
@@ -72,26 +68,16 @@ for package in "${PACKAGES[@]}"; do
     fi
 done
 
-# Setup NVM and install default Node version
-echo -e "${BLUE}Setting up NVM...${NC}"
-export NVM_DIR="$HOME/.nvm"
-mkdir -p "$NVM_DIR"
-
-# Source nvm (installed via nix)
-if [ -s "$HOME/.nix-profile/share/nvm/nvm.sh" ]; then
-    . "$HOME/.nix-profile/share/nvm/nvm.sh"
-elif [ -s "/run/current-system/sw/share/nvm/nvm.sh" ]; then
-    . "/run/current-system/sw/share/nvm/nvm.sh"
-fi
+# Setup fem and install default Node version
 
 # Install and set default Node version
-if command -v nvm &> /dev/null; then
+if command -v fem &> /dev/null; then
     echo -e "${BLUE}Installing Node.js v${DEFAULT_NODE_VERSION}...${NC}"
-    nvm install "$DEFAULT_NODE_VERSION"
-    nvm alias default "$DEFAULT_NODE_VERSION"
+    fnm install "$DEFAULT_NODE_VERSION"
+    fnm use
     echo -e "${GREEN}Node.js v${DEFAULT_NODE_VERSION} installed and set as default${NC}"
 else
-    echo -e "${BLUE}NVM not found in path, skipping Node setup...${NC}"
+    echo -e "${BLUE}fnm not found in path, skipping Node setup...${NC}"
 fi
 
 # Set fish as default shell if not already
