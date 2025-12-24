@@ -47,12 +47,12 @@ stow -R nix 2>/dev/null || echo -e "${BLUE}  (stow reports conflicts for nix, co
 # Install/update nix-darwin
 if ! command -v darwin-rebuild &> /dev/null; then
     echo -e "${BLUE}Installing nix-darwin...${NC}"
-    # First install requires nix run with full path to darwin-rebuild
-    nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#cozmos
+    # First install requires sudo per nix-darwin docs
+    sudo nix run nix-darwin#darwin-rebuild -- switch --flake ~/.config/nix#cozmos
 else
     echo -e "${GREEN}nix-darwin already installed${NC}"
     echo -e "${BLUE}Applying nix-darwin configuration...${NC}"
-    darwin-rebuild switch --flake ~/.config/nix#cozmos
+    sudo darwin-rebuild switch --flake ~/.config/nix#cozmos
 fi
 
 # Stow remaining dotfiles
