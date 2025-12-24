@@ -1,4 +1,4 @@
-set -x PATH /usr/local/bin /opt/homebrew/bin $PATH
+set -x PATH /usr/local/bin $PATH
 
 if status is-interactive
     # fnm (Fast Node Manager) setup
@@ -46,15 +46,6 @@ set -x BUN_INSTALL "$HOME/.bun"
 set -x PATH $BUN_INSTALL/bin $PATH
 set -x PATH $HOME/.local/bin $PATH
 set -x PATH $PATH $HOME/.node/corepack
-
-
-# Cache and load brew environment
-if test -f ~/.brew_env
-    source ~/.brew_env
-else
-    /opt/homebrew/bin/brew shellenv > ~/.brew_env
-    source ~/.brew_env
-end
 
 # pnpm
 set -gx PNPM_HOME "/Users/sorv/Library/pnpm"
