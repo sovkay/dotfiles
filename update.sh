@@ -21,7 +21,7 @@ cd ~/dotfiles
 git pull 2>/dev/null || true
 
 # Restow (in case structure changed)
-PACKAGES=("nix" "fish" "nvim" "starship" "ghostty" "zed" "gh" "fastfetch" "omf" "profile")
+PACKAGES=("nix" "fish" "nvim" "starship" "kitty" "zed" "gh" "fastfetch" "omf" "profile")
 
 for package in "${PACKAGES[@]}"; do
     if [ -d "$package" ]; then

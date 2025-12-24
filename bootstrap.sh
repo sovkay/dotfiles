@@ -59,7 +59,7 @@ fi
 echo -e "${BLUE}Stowing dotfiles...${NC}"
 cd ~/dotfiles
 
-PACKAGES=("fish" "nvim" "starship" "ghostty" "zed" "gh" "fastfetch" "omf" "profile")
+PACKAGES=("fish" "nvim" "starship" "kitty" "zed" "gh" "fastfetch" "omf" "profile")
 
 for package in "${PACKAGES[@]}"; do
     if [ -d "$package" ]; then
