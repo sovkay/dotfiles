@@ -81,6 +81,26 @@ else
     echo -e "${BLUE}fnm not found in path, skipping Node setup...${NC}"
 fi
 
+# Setup rustup (installed via nix, but needs initialization)
+if command -v rustup &> /dev/null; then
+    if [ ! -d "$HOME/.rustup" ]; then
+        echo -e "${BLUE}Initializing rustup...${NC}"
+        rustup default stable
+        echo -e "${GREEN}Rust stable toolchain installed${NC}"
+    else
+        echo -e "${GREEN}Rustup already initialized${NC}"
+    fi
+fi
+
+# Install Oh My Fish if not present
+if [ ! -d "$HOME/.local/share/omf" ]; then
+    echo -e "${BLUE}Installing Oh My Fish...${NC}"
+    curl -sSL https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish --command 'source - --noninteractive --yes'
+    echo -e "${GREEN}Oh My Fish installed${NC}"
+else
+    echo -e "${GREEN}Oh My Fish already installed${NC}"
+fi
+
 # Set fish as default shell if not already
 FISH_PATH=$(which fish 2>/dev/null || echo "/run/current-system/sw/bin/fish")
 if [ -x "$FISH_PATH" ] && [ "$SHELL" != "$FISH_PATH" ]; then

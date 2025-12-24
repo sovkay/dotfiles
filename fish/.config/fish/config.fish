@@ -1,5 +1,3 @@
-set -x PATH /usr/local/bin $PATH
-
 if status is-interactive
     # fnm (Fast Node Manager) setup
     if command -q fnm

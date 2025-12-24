@@ -5,28 +5,89 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:nix-darwin/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs@{
     self,
     nix-darwin,
-    nixpkgs,
-    home-manager
+    nixpkgs
   }:
   let
-    configuration = { pkgs, config, users, inputs, ... }: {
+    # Get username - SUDO_USER preserves original user when running with sudo
+    username = let
+      sudoUser = builtins.getEnv "SUDO_USER";
+      user = builtins.getEnv "USER";
+    in if sudoUser != "" then sudoUser else user;
+
+    configuration = { pkgs, config, ... }: {
       nixpkgs.config.allowUnfree = true;
-      users.users.sav.home = /Users/sav;
 
+      # All packages - installed system-wide to /run/current-system/sw/bin
+      environment.systemPackages = with pkgs; [
+        # GUI Apps
+        kitty
+        vscode
 
-      # System packages (GUI apps and tools that need system-level install)
-      environment.systemPackages = [
-        pkgs.kitty
-        pkgs.mkalias
-        pkgs.stow
-        pkgs.vscode
+        # System tools
+        mkalias
+        stow
+
+        # Shell & Terminal
+        fish
+        starship
+
+        # CLI Tools
+        ripgrep
+        fd
+        gnupg
+        bat
+        eza
+        fzf
+        zoxide
+        tldr
+        btop
+        htop
+        tree
+        jq
+        yq
+        fastfetch
+
+        # Git & GitHub
+        git
+        gh
+        lazygit
+        delta
+
+        # Development Languages & Tools
+        rustup
+        fnm
+        bun
+        go
+
+        # Databases
+        redis
+        postgresql
+
+        # Cloud & DevOps
+        kubectl
+        docker
+
+        # Editors
+        neovim
+
+        # Build Tools
+        cmake
+        gnumake
+
+        # Other Utilities
+        curl
+        wget
+        tmux
+        direnv
+
+        # Nix tools
+        nil
+        nixpkgs-fmt
       ];
 
       fonts.packages = [
@@ -66,7 +127,7 @@
       nixpkgs.hostPlatform = "aarch64-darwin";
 
       # Primary user for system defaults
-      system.primaryUser = "sav";
+      system.primaryUser = username;
 
       # macOS system settings
       system.defaults = {
@@ -79,99 +140,12 @@
         NSGlobalDomain.KeyRepeat = 2;
       };
     };
-
-    homeconfig = { pkgs, ... }: {
-      home.username = "sav";
-      home.homeDirectory = /Users/sav;
-      home.stateVersion = "24.11";
-
-      # All packages managed by home-manager
-      home.packages = with pkgs; [
-        # Shell & Terminal
-        fish
-        starship
-
-        # CLI Tools
-        ripgrep
-        fd
-        gnupg
-        bat
-        eza
-        fzf
-        zoxide
-        tldr
-        btop
-        htop
-        tree
-        jq
-        yq
-        fastfetch
-
-        # Git & GitHub
-        git
-        gh
-        lazygit
-        delta
-
-        # Development Languages & Tools
-        rustup
-        fnm               # Node version manager
-        bun               # Fast JS runtime & package manager
-        go
-
-        # Databases
-        redis
-        postgresql
-
-
-        # Cloud & DevOps
-        kubectl
-        docker
-
-        # Editors
-        neovim
-
-        # Build Tools
-        cmake
-        gnumake
-
-        # Other Utilities
-        curl
-        wget
-        tmux
-        direnv
-
-        # Nix tools
-        nil
-        nixpkgs-fmt
-      ];
-
-      # VSCode with extensions
-      programs.vscode = {
-        enable = true;
-        package = pkgs.vscode;
-      };
-
-      # Programs: only enable those that don't conflict with stowed dotfiles
-      # fish, git, neovim, starship configs are managed via stow - don't enable here
-      programs.fzf.enable = true;
-      programs.zoxide.enable = true;
-      programs.direnv.enable = true;
-    };
   in
   {
     # Build darwin flake using:
     # $ darwin-rebuild switch --flake ~/.config/nix#cozmos
     darwinConfigurations."cozmos" = nix-darwin.lib.darwinSystem {
-      modules = [
-        configuration
-        home-manager.darwinModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.sav = homeconfig;
-        }
-      ];
+      modules = [ configuration ];
     };
   };
 }
