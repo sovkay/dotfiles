@@ -13,8 +13,7 @@
     nixpkgs
   }:
   let
-
-    configuration = { pkgs, config, ... }: {
+    configuration = { pkgs, programs, config, ... }: {
       nixpkgs.config.allowUnfree = true;
 
       # All packages - installed system-wide to /run/current-system/sw/bin
@@ -89,6 +88,21 @@
         pkgs.monaspace
       ];
 
+      services.postgresql = {
+        enable = true;
+        package = pkgs.postgresql_17; # Specify version
+        enableTCPIP = true;
+        settings = {
+          port = 5432;
+          max_connections = 100;
+        };
+      };
+
+      services.redis = {
+        enable = true;
+        bind = "127.0.0.1";
+      }
+
       # App aliases for Spotlight
       system.activationScripts.applications.text = let
         env = pkgs.buildEnv {
@@ -123,6 +137,8 @@
 
       # Primary user for system defaults
       system.primaryUser = "sav";
+
+      programs.fish.enable = true;
 
       # macOS system settings
       system.defaults = {

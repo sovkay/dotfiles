@@ -48,4 +48,18 @@ else
     echo -e "${BLUE}fnm not found, skipping Node.js update...${NC}"
 fi
 
+# Set fish as default shell if not already
+FISH_PATH=$(which fish 2>/dev/null || echo "/run/current-system/sw/bin/fish")
+if [ -x "$FISH_PATH" ] && [ "$SHELL" != "$FISH_PATH" ]; then
+    echo -e "${BLUE}Setting fish as default shell...${NC}"
+    if ! grep -q "$FISH_PATH" /etc/shells; then
+        echo "$FISH_PATH" | sudo tee -a /etc/shells
+    fi
+    chsh -s "$FISH_PATH"
+    echo -e "${GREEN}Fish set as default shell${NC}"
+else
+    echo -e "${GREEN}Fish already default shell${NC}"
+fi
+
+
 echo -e "${GREEN}Update complete!${NC}"
