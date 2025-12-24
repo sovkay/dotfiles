@@ -13,11 +13,6 @@
     nixpkgs
   }:
   let
-    # Get username - SUDO_USER preserves original user when running with sudo
-    username = let
-      sudoUser = builtins.getEnv "SUDO_USER";
-      user = builtins.getEnv "USER";
-    in if sudoUser != "" then sudoUser else user;
 
     configuration = { pkgs, config, ... }: {
       nixpkgs.config.allowUnfree = true;
@@ -127,7 +122,7 @@
       nixpkgs.hostPlatform = "aarch64-darwin";
 
       # Primary user for system defaults
-      system.primaryUser = username;
+      system.primaryUser = "sav";
 
       # macOS system settings
       system.defaults = {
