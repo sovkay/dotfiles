@@ -54,13 +54,9 @@ end
 
 # Init starship
 set STARSHIP_CONFIG $HOME/.config/starship/starship.toml
+set HOMEBREW_NO_ENV_HINTS 1
 starship init fish | source
 
-# Added by Antigravity
-fish_add_path /Users/sorv/.antigravity/antigravity/bin
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/sorv/google-cloud-sdk/path.fish.inc' ]; . '/Users/sorv/google-cloud-sdk/path.fish.inc'; end
-
-# sst
-fish_add_path /Users/sorv/.sst/bin
