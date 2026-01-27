@@ -1,3 +1,5 @@
+fish_add_path /opt/homebrew/bin
+
 if status is-interactive
     # fnm (Fast Node Manager) setup
     if command -q fnm
@@ -60,3 +62,32 @@ starship init fish | source
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/sorv/google-cloud-sdk/path.fish.inc' ]; . '/Users/sorv/google-cloud-sdk/path.fish.inc'; end
+
+# sst
+fish_add_path /Users/sorv/.sst/bin
+
+# Port management functions
+function wort
+    if test (count $argv) -eq 0
+        echo "Usage: wort <port>"
+        return 1
+    end
+    lsof -i :$argv[1]
+end
+
+function pill
+    if test (count $argv) -eq 0
+        echo "Usage: pill <port>"
+        return 1
+    end
+    set -l pids (lsof -i :$argv[1] 2>/dev/null | awk 'NR>1 {print $2}' | sort -u)
+    if test (count $pids) -eq 0
+        echo "No processes found on port $argv[1]"
+        return 1
+    end
+    for pid in $pids
+        kill $pid 2>/dev/null
+    end
+    echo "Killed processes on port $argv[1]: $pids"
+end
+

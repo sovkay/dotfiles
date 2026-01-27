@@ -13,7 +13,11 @@ cd ~/dotfiles
 mkdir -p ~/.config
 
 # List of packages to stow
-PACKAGES=("nix" "fish" "nvim" "starship" "ghostty" "zed" "gh" "fastfetch" "omf" "profile")
+PACKAGES=("nix" "fish" "nvim" "starship" "ghostty" "zed" "gh" "fastfetch" "omf" "profile" "kitty")
+
+# which stow
+STOW=$(which stow)
+echo -e "${BLUE}  Stowing with $STOW...${NC}"
 
 for package in "${PACKAGES[@]}"; do
     if [ -d "$package" ]; then
