@@ -35,6 +35,9 @@ alias grb="git rebase"
 alias gcl="git clone"
 alias gcp="git cherry-pick"
 
+alias python='python3'
+alias pip='pip3'
+
 # Dotfiles management
 alias dots="cd ~/dotfiles"
 alias dotsup="~/dotfiles/update.sh"
@@ -60,8 +63,7 @@ set HOMEBREW_NO_ENV_HINTS 1
 starship init fish | source
 
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/sorv/google-cloud-sdk/path.fish.inc' ]; . '/Users/sorv/google-cloud-sdk/path.fish.inc'; end
+source "$HOME/.cargo/env.fish"
 
 # sst
 fish_add_path /Users/sorv/.sst/bin
@@ -91,3 +93,5 @@ function pill
     echo "Killed processes on port $argv[1]: $pids"
 end
 
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/sorv/google-cloud-sdk/path.fish.inc' ]; . '/Users/sorv/google-cloud-sdk/path.fish.inc'; end

@@ -1,1 +1,1 @@
-fish_add_path /opt/homebrew/bin
+eval "$(brew shellenv)"
