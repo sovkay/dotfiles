@@ -17,8 +17,12 @@ return {
 		end,
 	},
 	{
+		"j-hui/fidget.nvim",
+		opts = {},
+	},
+	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "saghen/blink.cmp" },
+		dependencies = { "saghen/blink.cmp", "j-hui/fidget.nvim" },
 		config = function()
 			local capabilities = require("blink.cmp").get_lsp_capabilities()
 			local lspconfig = require("lspconfig")
