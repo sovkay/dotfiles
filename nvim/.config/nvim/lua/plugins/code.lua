@@ -64,17 +64,52 @@ return {
 		end,
 	},
 	{
-		"nvimtools/none-ls.nvim",
+		"stevearc/conform.nvim",
+		event = { "BufWritePre" },
+		cmd = { "ConformInfo" },
+		opts = {
+			formatters_by_ft = {
+				lua = { "stylua" },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+				css = { "prettierd", "prettier", stop_after_first = true },
+				html = { "prettierd", "prettier", stop_after_first = true },
+				json = { "prettierd", "prettier", stop_after_first = true },
+			},
+			format_on_save = {
+				timeout_ms = 500,
+				lsp_format = "fallback",
+			},
+		},
+		keys = {
+			{
+				"<leader>cf",
+				function()
+					require("conform").format({ async = true, lsp_format = "fallback" })
+				end,
+			},
+		},
+	},
+	{
+		"mfussenegger/nvim-lint",
+		event = { "BufReadPost", "BufWritePost", "BufNewFile" },
 		config = function()
-			local null_ls = require("null-ls")
+			local lint = require("lint")
 
-			null_ls.setup({
-				sources = {
-					null_ls.builtins.formatting.stylua,
-				},
+			lint.linters_by_ft = {
+				javascript = { "eslint_d" },
+				typescript = { "eslint_d" },
+				javascriptreact = { "eslint_d" },
+				typescriptreact = { "eslint_d" },
+			}
+
+			vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
+				callback = function()
+					lint.try_lint()
+				end,
 			})
-
-			vim.keymap.set("n", "<leader>cf", vim.lsp.buf.format, {})
 		end,
 	},
 }

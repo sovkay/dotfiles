@@ -17,6 +17,17 @@ return {
 		end,
 	},
 	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		dependencies = { "williamboman/mason.nvim" },
+		opts = {
+			ensure_installed = {
+				"stylua",
+				"prettierd",
+				"eslint_d",
+			},
+		},
+	},
+	{
 		"j-hui/fidget.nvim",
 		opts = {},
 	},
